@@ -26,8 +26,13 @@ public final class ArrayUtils {
      * @throws AssertionError if one of the parameters is null
      */
     public static boolean equals(byte[] a1, byte[] a2){
-
-        return Helper.fail("Not Implemented");
+        if( a1.length != a2.length )
+            return false;
+        for( int i = 0; i <= a1.length - 1; i++ )
+            if( a1[i] != a2[i] )
+                return false;
+        return true;
+       //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -38,8 +43,18 @@ public final class ArrayUtils {
      * @throws AssertionError if one of the parameters is null
      */
     public static boolean equals(byte[][] a1, byte[][] a2){
-
-        return Helper.fail("Not Implemented");
+        if( a1 == null && a2 == null)
+            return true;
+        if( a1.length != a2.length )
+            return false;
+        else if( a1[1].length != a2[1].length )
+            return false;
+        for ( int i = 0; i <= a1.length-1; i++ )
+            for( int j = 0; j <= a1[i].length - 1; j++ )
+                if( a1[i][j] != a2[i][j] )
+                    return false;
+        return true;
+        //return Helper.fail("Not Implemented");
     }
 
     // ==================================================================================
@@ -52,7 +67,9 @@ public final class ArrayUtils {
      * @return (byte[]) - array with one element (value)
      */
     public static byte[] wrap(byte value){
-        return Helper.fail("Not Implemented");
+        byte[] wrapped = {value};
+        return wrapped;
+        //return Helper.fail("Not Implemented");
     }
 
     // ==================================================================================
@@ -68,7 +85,11 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null or the input's length is different from 4
      */
     public static int toInt(byte[] bytes){
-        return Helper.fail("Not Implemented");
+        int num = 0;
+        for( byte b : bytes )
+            num = (num << 8) + (b & 0xFF);
+        return num;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -77,8 +98,16 @@ public final class ArrayUtils {
      * @param value (int) - The integer
      * @return (byte[]) - Big Endian representation of the integer
      */
-    public static byte[] fromInt(int value){
-        return Helper.fail("Not Implemented");
+    public static byte[] fromInt(int value)
+    {
+        byte[] bytes = new byte[4];
+        for( int i = 3; i >= 0; i-- )
+        {
+            bytes[i] = (byte)(value & 0xFF);
+            value = value >> 8;
+        }
+        return bytes;
+        //return Helper.fail("Not Implemented");
     }
 
     // ==================================================================================
@@ -92,7 +121,14 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null
      */
     public static byte[] concat(byte ... bytes){
-        return Helper.fail("Not Implemented");
+        int i = 0;
+        byte a[] = new byte[bytes.length];
+        for( byte b : bytes ) {
+            a[i] = b;
+            i++;
+        }
+        return a;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -103,7 +139,20 @@ public final class ArrayUtils {
      * or one of the inner arrays of input is null.
      */
     public static byte[] concat(byte[] ... tabs){
-        return Helper.fail("Not Implemented");
+        int j = 0;
+        for( byte[] t : tabs )
+            for( int i = 0; i < t.length; i++ )
+                j++;
+        byte[] a = new byte[j];
+        j = 0;
+        for( byte[] t : tabs )
+            for( int i = 0; i < t.length; i++ )
+            {
+                a[j] = t[i];
+                j++;
+            }
+        return a;
+        //return Helper.fail("Not Implemented");
     }
 
     // ==================================================================================
@@ -120,7 +169,13 @@ public final class ArrayUtils {
      * start + length should also be smaller than the input's length
      */
     public static byte[] extract(byte[] input, int start, int length){
-        return Helper.fail("Not Implemented");
+        byte[] a = new byte[length];
+        for( int i = 0; i < length; i++ )
+        {
+            a[i] = input[start + i];
+        }
+        return a;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -134,7 +189,21 @@ public final class ArrayUtils {
      * or the sum of the elements in sizes is different from the input's length
      */
     public static byte[][] partition(byte[] input, int ... sizes) {
-        return Helper.fail("Not Implemented");
+        int c = 0;
+        int j = 0;
+        byte[][] partitions = new byte [sizes.length][];
+        for (int size : sizes)
+        {
+            partitions[j] = new byte[size];
+            for (int i = 0; i < size; i++)
+            {
+                partitions[j][i] = input[c];
+                c++;
+            }
+            j++;
+        }
+        return partitions;
+        //return Helper.fail("Not Implemented");
     }
 
     // ==================================================================================
@@ -152,8 +221,31 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null
      * or one of the inner arrays of input is null
      */
-    public static byte[][] imageToChannels(int[][] input){
-        return Helper.fail("Not Implemented");
+    public static byte[][] imageToChannels(int[][] input)
+    {
+        int c = 0;
+        byte aux, aux1;
+        for( int i = 0; i < input.length; i++ )
+        {
+            for( int j = 0; j < input[i].length; j++ )
+                c++;
+        }
+        byte[][] output = new byte[c][4];
+        byte[][] outputfinal = new byte[c][4];
+        c = 0;
+        for( int i = 0; i < input.length; i++ )
+        {
+            for( int j = 0; j < input[i].length; j++ )
+            {
+                output[c] = fromInt(input[i][j]);
+                byte [] tab1 = { output[c][1], output[c][2], output[c][3] };
+                byte [] tab2 = { output [c][0] };
+                outputfinal[c] = concat(tab1, tab2);
+                c++;
+            }
+
+        }
+        return outputfinal;
     }
 
     /**
@@ -170,7 +262,9 @@ public final class ArrayUtils {
      * or height is invalid
      * or width is invalid
      */
-    public static int[][] channelsToImage(byte[][] input, int height, int width){
+    public static int[][] channelsToImage(byte[][] input, int height, int width)
+    {
+
         return Helper.fail("Not Implemented");
     }
 

@@ -17,7 +17,6 @@ public final class Main {
      * DO NOT CHANGE THIS, MORE ON THAT IN WEEK 7
      */
     private Main(){}
-
     /**
      * Main entry point to the program
      * @param args (String[]) - Arguments passed to the program via the command line
@@ -41,7 +40,7 @@ public final class Main {
 
         // ========== Test ArrayUtils ==========
         //assert testWrap();
-        //assert testToInt();
+        assert testToInt();
         //assert testFromInt();
         //assert testConcatArrayBytes();
         //assert testConcatBytes();
@@ -70,6 +69,7 @@ public final class Main {
         //assert testDecodeData();
 
         System.out.println("All the tests passes. Congratulations");
+        System.out.println(testImageToChannels());
     }
 
     // ============================================================================================
