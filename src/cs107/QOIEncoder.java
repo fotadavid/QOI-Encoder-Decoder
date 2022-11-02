@@ -34,7 +34,7 @@ public final class QOIEncoder {
         header[3] = (byte) 'f';
         int height = input.length;
         int width = input[0].length;
-        byte[] conv = new byte[4], conv1 = new byte [4];
+        byte[] conv , conv1;
         conv = ArrayUtils.fromInt(height);
         conv1 = ArrayUtils.fromInt(width);
         for( int i = 0; i <= 3; i++ )
