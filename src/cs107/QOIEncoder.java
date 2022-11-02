@@ -26,7 +26,25 @@ public final class QOIEncoder {
      * @return (byte[]) - Corresponding "Quite Ok Image" Header
      */
     public static byte[] qoiHeader(Helper.Image image){
-        return Helper.fail("Not Implemented");
+        int [][] input = image.data();
+        byte[] header = new byte[14];
+        header[0] = (byte) 'q';
+        header[1] = (byte) 'o';
+        header[2] = (byte) 'i';
+        header[3] = (byte) 'f';
+        int height = input.length;
+        int width = input[0].length;
+        byte[] conv = new byte[4], conv1 = new byte [4];
+        conv = ArrayUtils.fromInt(height);
+        conv1 = ArrayUtils.fromInt(width);
+        for( int i = 0; i <= 3; i++ )
+        {
+            header[i + 4] = conv1[i];
+            header[i + 8] = conv[i];
+        }
+        header[12] = image.channels();
+        header[13] = image.color_space();
+        return header;
     }
 
     // ==================================================================================
@@ -39,8 +57,14 @@ public final class QOIEncoder {
      * @throws AssertionError if the pixel's length is not 4
      * @return (byte[]) - Encoding of the pixel using the QOI_OP_RGB schema
      */
-    public static byte[] qoiOpRGB(byte[] pixel){
-        return Helper.fail("Not Implemented");
+    public static byte[] qoiOpRGB(byte[] pixel)
+    {
+        byte[] rgb = { pixel[0], pixel[1], pixel[2] };
+        byte[] tag = { QOISpecification.QOI_OP_RGB_TAG };
+        byte[] output;
+        output = ArrayUtils.concat(tag, rgb);
+        return output;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -49,8 +73,14 @@ public final class QOIEncoder {
      * @throws AssertionError if the pixel's length is not 4
      * @return (byte[]) Encoding of the pixel using the QOI_OP_RGBA schema
      */
-    public static byte[] qoiOpRGBA(byte[] pixel){
-        return Helper.fail("Not Implemented");
+    public static byte[] qoiOpRGBA(byte[] pixel)
+    {
+        byte[] rgba = pixel;
+        byte[] tag = { QOISpecification.QOI_OP_RGBA_TAG };
+        byte[] output;
+        output = ArrayUtils.concat(tag, rgba);
+        return output;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -59,7 +89,9 @@ public final class QOIEncoder {
      * @throws AssertionError if the index is outside the range of all possible indices
      * @return (byte[]) - Encoding of the index using the QOI_OP_INDEX schema
      */
-    public static byte[] qoiOpIndex(byte index){
+    public static byte[] qoiOpIndex(byte index)
+    {
+
         return Helper.fail("Not Implemented");
     }
 

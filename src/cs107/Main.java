@@ -40,7 +40,7 @@ public final class Main {
 
         // ========== Test ArrayUtils ==========
         //assert testWrap();
-        assert testToInt();
+        //assert testToInt();
         //assert testFromInt();
         //assert testConcatArrayBytes();
         //assert testConcatBytes();
@@ -69,7 +69,6 @@ public final class Main {
         //assert testDecodeData();
 
         System.out.println("All the tests passes. Congratulations");
-        System.out.println(testImageToChannels());
     }
 
     // ============================================================================================

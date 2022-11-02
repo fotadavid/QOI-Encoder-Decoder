@@ -85,6 +85,8 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null or the input's length is different from 4
      */
     public static int toInt(byte[] bytes){
+        assert bytes != null;
+        assert bytes.length == 4;
         int num = 0;
         for( byte b : bytes )
             num = (num << 8) + (b & 0xFF);
@@ -264,8 +266,25 @@ public final class ArrayUtils {
      */
     public static int[][] channelsToImage(byte[][] input, int height, int width)
     {
-
-        return Helper.fail("Not Implemented");
+        assert (input != null);
+        int [][] output = new int [height][width];
+        byte [] tab3 = new byte[4];
+        int c = 0;
+        int k = 0;
+        for( int i = 0; i < height * width; i ++ )
+        {
+            if( c == width ) {
+                c = 0;
+                k++;
+            }
+            byte[] tab1 = { input[i][0], input[i][1], input[i][2] };
+            byte[] tab2 = { input[i][3] };
+            tab3 = concat( tab2, tab1 );
+            output[k][c] = toInt(tab3);
+            c++;
+        }
+        return output;
+        //return Helper.fail("Not Implemented");
     }
 
 }
