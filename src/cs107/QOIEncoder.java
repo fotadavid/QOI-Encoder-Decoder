@@ -12,6 +12,8 @@ public final class QOIEncoder {
     /**
      * DO NOT CHANGE THIS, MORE ON THAT IN WEEK 7.
      */
+
+
     private QOIEncoder(){}
 
     // ==================================================================================

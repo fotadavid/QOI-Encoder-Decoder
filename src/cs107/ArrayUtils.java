@@ -123,6 +123,7 @@ public final class ArrayUtils {
      * @throws AssertionError if the input is null
      */
     public static byte[] concat(byte ... bytes){
+        assert bytes != null;
         int i = 0;
         byte a[] = new byte[bytes.length];
         for( byte b : bytes ) {
@@ -153,6 +154,7 @@ public final class ArrayUtils {
                 a[j] = t[i];
                 j++;
             }
+        assert a != null;
         return a;
         //return Helper.fail("Not Implemented");
     }
@@ -171,6 +173,11 @@ public final class ArrayUtils {
      * start + length should also be smaller than the input's length
      */
     public static byte[] extract(byte[] input, int start, int length){
+        assert length >=0;
+        assert start + length >= input.length;
+        assert start >= 0 && start < input.length;
+        assert input != null;
+
         byte[] a = new byte[length];
         for( int i = 0; i < length; i++ )
         {
@@ -191,6 +198,13 @@ public final class ArrayUtils {
      * or the sum of the elements in sizes is different from the input's length
      */
     public static byte[][] partition(byte[] input, int ... sizes) {
+        assert input != null;
+        assert sizes != null;
+        int sum = 0;
+        for( int size : sizes )
+            sum += size;
+        assert sum == input.length;
+
         int c = 0;
         int j = 0;
         byte[][] partitions = new byte [sizes.length][];
@@ -225,6 +239,16 @@ public final class ArrayUtils {
      */
     public static byte[][] imageToChannels(int[][] input)
     {
+        assert input != null;
+        int size = input[0].length;
+        boolean flag = true;
+        for( int i =0; i < input.length; i++) {
+            assert input[i] != null;
+            if (input[i].length != size)
+                flag = false;
+        }
+        assert flag;
+
         int c = 0;
         byte aux, aux1;
         for( int i = 0; i < input.length; i++ )
@@ -266,7 +290,12 @@ public final class ArrayUtils {
      */
     public static int[][] channelsToImage(byte[][] input, int height, int width)
     {
-        assert (input != null);
+        assert input != null;
+        for( int i =0; i < input.length; i++) {
+            assert input[i] != null;
+            assert input[i].length == 4;
+        }
+        assert input.length == height*width;
         int [][] output = new int [height][width];
         byte [] tab3 = new byte[4];
         int c = 0;
