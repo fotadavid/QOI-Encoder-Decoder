@@ -122,7 +122,6 @@ public final class QOIDecoder {
         output = ArrayUtils.concat(output, ArrayUtils.wrap((byte)(dg + previousPixel[1])));
         output = ArrayUtils.concat(output, ArrayUtils.wrap((byte)(db + previousPixel[2] - 8)));
         output = ArrayUtils.concat(output, ArrayUtils.wrap(previousPixel[3]));
-        System.out.println(output[0]);
         return output;
         //return Helper.fail("Not Implemented");
     }
