@@ -1,5 +1,7 @@
 package cs107;
 
+import java.lang.reflect.Array;
+
 /**
  * "Quite Ok Image" Encoder
  * @apiNote Second task of the 2022 Mini Project
@@ -93,8 +95,8 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpIndex(byte index)
     {
-
-        return Helper.fail("Not Implemented");
+        return ArrayUtils.wrap(index);
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -104,8 +106,18 @@ public final class QOIEncoder {
      * (See the handout for the constraints)
      * @return (byte[]) - Encoding of the given difference
      */
-    public static byte[] qoiOpDiff(byte[] diff){
-        return Helper.fail("Not Implemented");
+    public static byte[] qoiOpDiff(byte[] diff)
+    {
+        byte output = 0;
+        byte[] outputfin;
+        output |= QOISpecification.QOI_OP_DIFF_TAG;
+        for( int i = 2; i > 0; i-- )
+        {
+            output |= ((diff[i] + 2)<<(4 - 2*i));
+        }
+        outputfin = ArrayUtils.wrap(output);
+        return outputfin;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -116,8 +128,15 @@ public final class QOIEncoder {
      * (See the handout for the constraints)
      * @return (byte[]) - Encoding of the given difference
      */
-    public static byte[] qoiOpLuma(byte[] diff){
-        return Helper.fail("Not Implemented");
+    public static byte[] qoiOpLuma(byte[] diff)
+    {
+        byte[] outputfin = new byte[2];
+        outputfin[0] |= QOISpecification.QOI_OP_LUMA_TAG;
+        outputfin[0] |= ((diff[1] + 32));
+        outputfin[1] |= (((diff[0] - diff[1]) + 8)<<4);
+        outputfin[1] |= (((diff[2] - diff[1]) + 8));
+        return outputfin;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -126,8 +145,13 @@ public final class QOIEncoder {
      * @throws AssertionError if count is not between 0 (exclusive) and 63 (exclusive)
      * @return (byte[]) - Encoding of count
      */
-    public static byte[] qoiOpRun(byte count){
-        return Helper.fail("Not Implemented");
+    public static byte[] qoiOpRun(byte count)
+    {
+        byte[] outputfinal = new byte[1];
+        outputfinal[0] |= QOISpecification.QOI_OP_RUN_TAG;
+        outputfinal[0] |= (count - 1);
+        return outputfinal;
+        //return Helper.fail("Not Implemented");
     }
 
     // ==================================================================================
@@ -140,8 +164,55 @@ public final class QOIEncoder {
      * @param image (byte[][]) - Formatted image to encode
      * @return (byte[]) - "Quite Ok Image" representation of the image
      */
-    public static byte[] encodeData(byte[][] image){
-        return Helper.fail("Not Implemented");
+    public static byte[] encodeData(byte[][] image)
+    {
+        byte[][] hashtab = new byte [64][4];
+        byte[] lastpixel = QOISpecification.START_PIXEL;
+        byte[] output = new byte[0];
+        int count = 0;
+        int length = image.length;
+        byte index;
+        for( int i = 0; i < image.length; i++ )
+            {
+                if( ArrayUtils.equals(lastpixel,image[i]) )
+                {
+                    count++;
+                    if( count == 62 || i == length )
+                    {
+                        output = ArrayUtils.concat(output, qoiOpRun((byte) count));
+                        count = 0;
+                    }
+                } else if (count > 0)
+                {
+                    output = ArrayUtils.concat(output,qoiOpRun((byte) count));
+                    count = 0;
+                }
+                index = QOISpecification.hash(image[i]);
+                if( ArrayUtils.equals(hashtab[index], image[i]))
+                    output = ArrayUtils.concat(output, qoiOpIndex(index));
+                else hashtab[index] = image[i];
+                if( image[i][3] == lastpixel[3] )
+                {
+                    byte dr = (byte)(image[i][0] - lastpixel[0]);
+                    dr += 2;
+                    byte dg = (byte)(image[i][1] - lastpixel[1]);
+                    dg += 2;
+                    byte db = (byte)(image[i][2] - lastpixel[2]);
+                    db += 2;
+                    if( (-3 < dr && dr < 2) && (-3 < dg && dg < 2) && (-3 < db && db < 2) ) {
+                        byte[] diff = { dr, dg, db };
+                        output = ArrayUtils.concat(output, qoiOpDiff(diff));
+                    }else if( (-33 < dg && dg < 32) && ( -9 < (dr - dg) && (dr - dg) < 8 ) && ( -9 < (db - dg) && (db - dg) < 8 ))
+                    {
+                        byte[] diff = { dr, dg, db };
+                        output = ArrayUtils.concat(output, qoiOpLuma(diff));
+                    }else output = ArrayUtils.concat(output, qoiOpRGB( image[i] ));
+                }else output = ArrayUtils.concat(output, qoiOpRGBA( image[i] ));
+            }
+        for ( byte b : output )
+            System.out.println(b);
+        return output;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -152,7 +223,9 @@ public final class QOIEncoder {
      * @return (byte[]) - Binary representation of the "Quite Ok File" of the image
      * @throws AssertionError if the image is null
      */
-    public static byte[] qoiFile(Helper.Image image){
+    public static byte[] qoiFile(Helper.Image image)
+    {
+
         return Helper.fail("Not Implemented");
     }
 
