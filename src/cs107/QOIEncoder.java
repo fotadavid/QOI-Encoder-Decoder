@@ -208,8 +208,6 @@ public final class QOIEncoder {
             }
                 lastpixel = image[i];
             }
-        for ( byte b : output )
-            System.out.println(b);
         return output;
         //return Helper.fail("Not Implemented");
     }
@@ -224,8 +222,13 @@ public final class QOIEncoder {
      */
     public static byte[] qoiFile(Helper.Image image)
     {
-
-        return Helper.fail("Not Implemented");
+        byte[] output = new byte[0];
+        byte[][] chan = ArrayUtils.imageToChannels(image.data());
+        output = ArrayUtils.concat(output, qoiHeader(image));
+        output = ArrayUtils.concat(output, encodeData(chan));
+        output = ArrayUtils.concat(output, QOISpecification.QOI_EOF);
+        return output;
+        //return Helper.fail("Not Implemented");
     }
 
 }

@@ -174,7 +174,7 @@ public final class ArrayUtils {
      */
     public static byte[] extract(byte[] input, int start, int length){
         assert length >=0;
-        assert start + length >= input.length;
+        assert start + length <= input.length;
         assert start >= 0 && start < input.length;
         assert input != null;
 

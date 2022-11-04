@@ -1,5 +1,7 @@
 package cs107;
 
+import java.lang.reflect.Array;
+
 import static cs107.Helper.Image;
 
 /**
@@ -26,8 +28,14 @@ public final class QOIDecoder {
      * @return (int[]) - Array such as its content is {width, height, channels, color space}
      * @throws AssertionError See handouts section 6.1
      */
-    public static int[] decodeHeader(byte[] header){
-        return Helper.fail("Not Implemented");
+    public static int[] decodeHeader(byte[] header)
+    {
+        byte[] widthb = ArrayUtils.extract( header, 4, 4);
+        byte[] heightb = ArrayUtils.extract( header, 8, 4);
+        int width = ArrayUtils.toInt(widthb), height = ArrayUtils.toInt(heightb);
+        int[] output = {width, height, (int)header[12], (int)header[13]};
+        return output;
+        //return Helper.fail("Not Implemented");
     }
 
     // ==================================================================================
@@ -44,8 +52,13 @@ public final class QOIDecoder {
      * @return (int) - The number of consumed bytes
      * @throws AssertionError See handouts section 6.2.1
      */
-    public static int decodeQoiOpRGB(byte[][] buffer, byte[] input, byte alpha, int position, int idx){
-        return Helper.fail("Not Implemented");
+    public static int decodeQoiOpRGB(byte[][] buffer, byte[] input, byte alpha, int position, int idx)
+    {
+        for( int i = 0; i < 3; i++ )
+            buffer[position][i] = input[idx + i];
+        buffer[position][3] = alpha;
+        return 3;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -57,8 +70,12 @@ public final class QOIDecoder {
      * @return (int) - The number of consumed bytes
      * @throws AssertionError See handouts section 6.2.2
      */
-    public static int decodeQoiOpRGBA(byte[][] buffer, byte[] input, int position, int idx){
-        return Helper.fail("Not Implemented");
+    public static int decodeQoiOpRGBA(byte[][] buffer, byte[] input, int position, int idx)
+    {
+        for( int i = 0; i < 4; i++ )
+            buffer[position][i] = input[idx + i];
+        return 4;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -68,8 +85,19 @@ public final class QOIDecoder {
      * @return (byte[]) - The newly created pixel
      * @throws AssertionError See handouts section 6.2.4
      */
-    public static byte[] decodeQoiOpDiff(byte[] previousPixel, byte chunk){
-        return Helper.fail("Not Implemented");
+    public static byte[] decodeQoiOpDiff(byte[] previousPixel, byte chunk)
+    {
+        byte[] output;
+        byte dr = 0b00_11_00_00, dg = 0b00_00_11_00, db = 0b00_00_00_11;
+        dr &= chunk;
+        dg &= chunk;
+        db &= chunk;
+        output = ArrayUtils.concat(ArrayUtils.wrap((byte)((dr >> 4) + previousPixel[0] - 2)));
+        output = ArrayUtils.concat(output, ArrayUtils.wrap((byte)((dg >> 2) + previousPixel[1] - 2)));
+        output = ArrayUtils.concat(output, ArrayUtils.wrap((byte)(db + previousPixel[2] - 2)));
+        output = ArrayUtils.concat(output, ArrayUtils.wrap(previousPixel[3]));
+        return output;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -79,8 +107,24 @@ public final class QOIDecoder {
      * @return (byte[]) - The newly created pixel
      * @throws AssertionError See handouts section 6.2.5
      */
-    public static byte[] decodeQoiOpLuma(byte[] previousPixel, byte[] data){
-        return Helper.fail("Not Implemented");
+    public static byte[] decodeQoiOpLuma(byte[] previousPixel, byte[] data)
+    {
+        byte [] output;
+        byte dg = 0b00_11_11_11;
+        byte dbg = 0b00_00_11_11;
+        byte drg = 0b00_00_11_11;
+        dg &= data[0] - 32;
+        dbg &= data[1];
+        drg &= data[1]>>4;
+        byte dr = (byte)(dg + (drg));
+        byte db = (byte)(dg + (dbg));
+        output = ArrayUtils.concat(ArrayUtils.wrap((byte)(dr + previousPixel[0] - 8)));
+        output = ArrayUtils.concat(output, ArrayUtils.wrap((byte)(dg + previousPixel[1])));
+        output = ArrayUtils.concat(output, ArrayUtils.wrap((byte)(db + previousPixel[2] - 8)));
+        output = ArrayUtils.concat(output, ArrayUtils.wrap(previousPixel[3]));
+        System.out.println(output[0]);
+        return output;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -92,7 +136,8 @@ public final class QOIDecoder {
      * @return (int) - number of written pixels in buffer
      * @throws AssertionError See handouts section 6.2.6
      */
-    public static int decodeQoiOpRun(byte[][] buffer, byte[] pixel, byte chunk, int position){
+    public static int decodeQoiOpRun(byte[][] buffer, byte[] pixel, byte chunk, int position)
+    {
         return Helper.fail("Not Implemented");
     }
 

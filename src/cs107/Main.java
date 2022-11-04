@@ -39,32 +39,32 @@ public final class Main {
          */
 
         // ========== Test ArrayUtils ==========
-        //assert testWrap();
-        //assert testToInt();
-        //assert testFromInt();
-        //assert testConcatArrayBytes();
-        //assert testConcatBytes();
-        //assert testExtract();
-        //assert testPartition();
-        //assert testImageToChannels();
-        //assert testChannelsToImage();
+        assert testWrap();
+        assert testToInt();
+        assert testFromInt();
+        assert testConcatArrayBytes();
+        assert testConcatBytes();
+        assert testExtract();
+        assert testPartition();
+        assert testImageToChannels();
+        assert testChannelsToImage();
 
         // ========== Test QOIEncoder ==========
-        //assert testQoiHeader();
-        //assert testQoiOpRGB();
-        //assert testQoiOpRGBA();
-        //assert testQoiOpIndex();
-        //assert testQoiOpDiff();
+        assert testQoiHeader();
+        assert testQoiOpRGB();
+        assert testQoiOpRGBA();
+        assert testQoiOpIndex();
+        assert testQoiOpDiff();
         assert testQoiOpLuma();
         assert testQoiOpRun();
         assert testEncodeData();
 
         // ========== Test QOIDecoder ==========
-        //assert testDecodeHeader();
-        //assert testDecodeQoiOpRGB();
-        //assert testDecodeQoiOpRGBA();
-        //assert testDecodeQoiOpDiff();
-        //assert testDecodeQoiOpLuma();
+        assert testDecodeHeader();
+        assert testDecodeQoiOpRGB();
+        assert testDecodeQoiOpRGBA();
+        assert testDecodeQoiOpDiff();
+        assert testDecodeQoiOpLuma();
         //assert testDecodeQoiOpRun();
         //assert testDecodeData();
 
