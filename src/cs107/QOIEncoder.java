@@ -111,10 +111,9 @@ public final class QOIEncoder {
         byte output = 0;
         byte[] outputfin;
         output |= QOISpecification.QOI_OP_DIFF_TAG;
-        for( int i = 2; i > 0; i-- )
-        {
-            output |= ((diff[i] + 2)<<(4 - 2*i));
-        }
+        output |= diff[2] + 2;
+        output |= (diff[1] + 2) << 2;
+        output |= (diff[0] + 2) << 4;
         outputfin = ArrayUtils.wrap(output);
         return outputfin;
         //return Helper.fail("Not Implemented");
@@ -174,40 +173,40 @@ public final class QOIEncoder {
         byte index;
         for( int i = 0; i < image.length; i++ )
             {
-                if( ArrayUtils.equals(lastpixel,image[i]) )
-                {
+                if( ArrayUtils.equals(lastpixel,image[i]) ) {
                     count++;
-                    if( count == 62 || i == length )
-                    {
-                        output = ArrayUtils.concat(output, qoiOpRun((byte) count));
+                    if (count == 62 || i == length - 1) {
+                        output = ArrayUtils.concat(output, qoiOpRun((byte) (count)));
                         count = 0;
                     }
-                } else if (count > 0)
-                {
-                    output = ArrayUtils.concat(output,qoiOpRun((byte) count));
-                    count = 0;
-                }
+                } else {
+                    if (count > 0) {
+                        output = ArrayUtils.concat(output, qoiOpRun((byte) (count)));
+                        count = 0;
+                    }
                 index = QOISpecification.hash(image[i]);
-                if( ArrayUtils.equals(hashtab[index], image[i]))
-                    output = ArrayUtils.concat(output, qoiOpIndex(index));
-                else hashtab[index] = image[i];
-                if( image[i][3] == lastpixel[3] )
-                {
-                    byte dr = (byte)(image[i][0] - lastpixel[0]);
-                    dr += 2;
-                    byte dg = (byte)(image[i][1] - lastpixel[1]);
-                    dg += 2;
-                    byte db = (byte)(image[i][2] - lastpixel[2]);
-                    db += 2;
-                    if( (-3 < dr && dr < 2) && (-3 < dg && dg < 2) && (-3 < db && db < 2) ) {
-                        byte[] diff = { dr, dg, db };
-                        output = ArrayUtils.concat(output, qoiOpDiff(diff));
-                    }else if( (-33 < dg && dg < 32) && ( -9 < (dr - dg) && (dr - dg) < 8 ) && ( -9 < (db - dg) && (db - dg) < 8 ))
-                    {
-                        byte[] diff = { dr, dg, db };
-                        output = ArrayUtils.concat(output, qoiOpLuma(diff));
-                    }else output = ArrayUtils.concat(output, qoiOpRGB( image[i] ));
-                }else output = ArrayUtils.concat(output, qoiOpRGBA( image[i] ));
+                if( ArrayUtils.equals(hashtab[index], image[i]) )
+                        output = ArrayUtils.concat(output, qoiOpIndex(index));
+                else {
+                    hashtab[index] = image[i];
+                    if (image[i][3] == lastpixel[3]) {
+                        byte dr = (byte) (image[i][0] - lastpixel[0]);
+                        //dr += 2;
+                        byte dg = (byte) (image[i][1] - lastpixel[1]);
+                        //dg += 2;
+                        byte db = (byte) (image[i][2] - lastpixel[2]);
+                        //db += 2;
+                        if ((-3 < dr && dr < 2) && (-3 < dg && dg < 2) && (-3 < db && db < 2)) {
+                            byte[] diff = {dr, dg, db};
+                            output = ArrayUtils.concat(output, qoiOpDiff(diff));
+                        } else if ((-33 < dg && dg < 32) && (-9 < (dr - dg) && (dr - dg) < 8) && (-9 < (db - dg) && (db - dg) < 8)) {
+                            byte[] diff = {dr, dg, db};
+                            output = ArrayUtils.concat(output, qoiOpLuma(diff));
+                        } else output = ArrayUtils.concat(output, qoiOpRGB(image[i]));
+                    } else output = ArrayUtils.concat(output, qoiOpRGBA(image[i]));
+                }
+            }
+                lastpixel = image[i];
             }
         for ( byte b : output )
             System.out.println(b);
