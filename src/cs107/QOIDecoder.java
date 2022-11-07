@@ -113,7 +113,8 @@ public final class QOIDecoder {
         byte dg = 0b00_11_11_11;
         byte dbg = 0b00_00_11_11;
         byte drg = 0b00_00_11_11;
-        dg &= data[0] - 32;
+        dg &= data[0];
+        dg -= 32;
         dbg &= data[1];
         drg &= data[1]>>4;
         byte dr = (byte)(dg + (drg));
@@ -160,8 +161,69 @@ public final class QOIDecoder {
      */
     public static byte[][] decodeData(byte[] data, int width, int height)
     {
-
-        return Helper.fail("Not Implemented");
+        int idx = 0, i = 0, count;
+        byte[] lastpixel = QOISpecification.START_PIXEL;
+        byte[] currentpixel = new byte[4];
+        byte[][] output = new byte[height*width][width], hashtab = new byte[64][4];
+        byte tag = (byte) 0b11_00_00_00, index;
+        byte[] diff = new byte[3];
+        while( idx < data.length )
+        {
+            tag = (byte) 0b11_00_00_00;
+            if( data[idx] == QOISpecification.QOI_OP_RGB_TAG )
+            {
+                idx++;
+                idx += decodeQoiOpRGB(output, data, lastpixel[3], i, idx);
+                lastpixel = output[i];
+                index = QOISpecification.hash(output[i]);
+                if( hashtab[index] != output[i] )
+                    hashtab[index] = output[i];
+                i++;
+            }else if( data[idx] == QOISpecification.QOI_OP_RGBA_TAG )
+            {
+                idx++;
+                idx += decodeQoiOpRGBA(output, data, i, idx);
+                index = QOISpecification.hash(output[i]);
+                if( hashtab[index] != output[i] )
+                    hashtab[index] = output[i];
+                lastpixel = output[i];
+                i++;
+            }else{
+                tag &= data[idx];
+                if( tag == QOISpecification.QOI_OP_DIFF_TAG )
+                {
+                    output[i] = decodeQoiOpDiff( lastpixel, data[idx]);
+                    index = QOISpecification.hash(output[i]);
+                    if( hashtab[index] != output[i] )
+                        hashtab[index] = output[i];
+                    lastpixel =  output[i];
+                    i++;
+                    idx++;
+                }else if( tag == QOISpecification.QOI_OP_LUMA_TAG)
+                {
+                    byte[] dataluma = ArrayUtils.concat(ArrayUtils.wrap(data[idx]), ArrayUtils.wrap(data[idx+1]));
+                    output[i] = decodeQoiOpLuma(lastpixel, dataluma);
+                    index = QOISpecification.hash(output[i]);
+                    if( hashtab[index] != output[i] )
+                        hashtab[index] = output[i];
+                    lastpixel = output[i];
+                    i++;
+                    idx += 2;
+                }else if( tag == QOISpecification.QOI_OP_RUN_TAG )
+                {
+                    i += decodeQoiOpRun(output, lastpixel, data[idx], i);
+                    lastpixel = output[i];
+                    i++;
+                    idx++;
+                }else if( tag == QOISpecification.QOI_OP_INDEX_TAG )
+                {
+                    index = (byte) (data[i] & 0b00_11_11_11);
+                    output[i] = hashtab[index];
+                }
+            }
+        }
+        return output;
+        //return Helper.fail("Not Implemented");
     }
 
     /**
@@ -170,8 +232,19 @@ public final class QOIDecoder {
      * @return (Image) - Decoded image
      * @throws AssertionError if content is null
      */
-    public static Image decodeQoiFile(byte[] content){
-        return Helper.fail("Not Implemented");
+    public static Image decodeQoiFile(byte[] content)
+    {
+        byte[] header = ArrayUtils.extract(content, 0, 14);
+        int[] decoded = decodeHeader(header);
+        byte[] data = ArrayUtils.extract(content, 14, content.length - QOISpecification.QOI_EOF.length);
+        byte[][] output = decodeData(data, decoded[1], decoded[0]);
+        int[][] finalout = new int[output.length][4];
+        for( int i = 0; i < output.length; i++ )
+            for( int j = 0; j < output[i].length; j++ )
+                finalout[i][j] = (int)output[i][j];
+        Image image = Helper.generateImage(finalout, (byte)decoded[12], (byte)decoded[13]);
+        return image;
+        //return Helper.fail("Not Implemented");
     }
 
 }

@@ -205,7 +205,7 @@ public final class QOIEncoder {
                         count = 0;
                     }
                 } else {
-                    if (count > 0) {
+                    if (count > 1) {
                         output = ArrayUtils.concat(output, qoiOpRun((byte) (count)));
                         count = 0;
                     }

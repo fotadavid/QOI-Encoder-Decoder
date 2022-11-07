@@ -66,13 +66,14 @@ public final class Main {
         assert testDecodeQoiOpDiff();
         assert testDecodeQoiOpLuma();
         assert testDecodeQoiOpRun();
-        //assert testDecodeData();
+        assert testDecodeData();
 
         /*byte [] image = QOIEncoder.qoiFile(Helper.readImage("references/cube.png"));
         Helper.write("ref/cube.qoi", image);*/
         //Hexdump.hexdump(QOIEncoder.qoiHeader(Helper.readImage("references/beach.png")));
         //Hexdump.hexdump(QOIEncoder.qoiFile(Helper.readImage("references/qoi_op_run.png")));
-        Helper.write("qoi_op_diff.qoi", QOIEncoder.qoiFile(Helper.readImage("references/qoi_op_diff.png")));
+        //Helper.write("beach.qoi", QOIEncoder.qoiFile(Helper.readImage("references/beach.png")));
+        Helper.write("cube.png", QOIDecoder.qoiFile(Helper.read("references/cube.qoi")));
         System.out.println("All the tests passes. Congratulations");
     }
 
