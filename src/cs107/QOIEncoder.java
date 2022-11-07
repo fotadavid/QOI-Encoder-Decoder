@@ -30,6 +30,10 @@ public final class QOIEncoder {
      * @return (byte[]) - Corresponding "Quite Ok Image" Header
      */
     public static byte[] qoiHeader(Helper.Image image){
+        assert image != null;
+        //assert (image.channels() == QOISpecification.RGB) && (image.channels() == QOISpecification.RGBA);
+        //assert (image.color_space() == QOISpecification.sRGB) && (image.color_space() == QOISpecification.ALL);
+
         int [][] input = image.data();
         byte[] header = new byte[14];
         header[0] = (byte) 'q';
@@ -63,6 +67,8 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpRGB(byte[] pixel)
     {
+        assert pixel.length == 4;
+
         byte[] rgb = { pixel[0], pixel[1], pixel[2] };
         byte[] tag = { QOISpecification.QOI_OP_RGB_TAG };
         byte[] output;
@@ -79,6 +85,8 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpRGBA(byte[] pixel)
     {
+        assert pixel.length == 4;
+
         byte[] rgba = pixel;
         byte[] tag = { QOISpecification.QOI_OP_RGBA_TAG };
         byte[] output;
@@ -95,6 +103,8 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpIndex(byte index)
     {
+        assert (index >= 0) && (index <= 63);
+
         return ArrayUtils.wrap(index);
         //return Helper.fail("Not Implemented");
     }
@@ -108,6 +118,10 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpDiff(byte[] diff)
     {
+        assert diff != null;
+        assert diff.length == 3;
+        assert (-3 < diff[0] && diff[0] < 2) && (-3 < diff[1] && diff[1] < 2) && (-3 < diff[2] && diff[2] < 2);
+
         byte output = 0;
         byte[] outputfin;
         output |= QOISpecification.QOI_OP_DIFF_TAG;
@@ -129,6 +143,12 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpLuma(byte[] diff)
     {
+        assert diff != null;
+        assert diff.length == 3;
+        assert (-33 < diff[1] && diff[1] < 32);
+        assert (-9 < diff[0] - diff[1] && diff[0] - diff[1] < 8);
+        assert (-9 < diff[2] - diff[1] && diff[2] - diff[1] < 8);
+
         byte[] outputfin = new byte[2];
         outputfin[0] |= QOISpecification.QOI_OP_LUMA_TAG;
         outputfin[0] |= ((diff[1] + 32));
@@ -146,6 +166,8 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpRun(byte count)
     {
+        assert (1 < count && count <= 62);
+
         byte[] outputfinal = new byte[1];
         outputfinal[0] |= QOISpecification.QOI_OP_RUN_TAG;
         outputfinal[0] |= (count - 1);
@@ -165,6 +187,7 @@ public final class QOIEncoder {
      */
     public static byte[] encodeData(byte[][] image)
     {
+
         byte[][] hashtab = new byte [64][4];
         byte[] lastpixel = QOISpecification.START_PIXEL;
         byte[] output = new byte[0];
@@ -173,6 +196,8 @@ public final class QOIEncoder {
         byte index;
         for( int i = 0; i < image.length; i++ )
             {
+                assert image[i] != null;
+                assert image[i].length == 4;
                 if( ArrayUtils.equals(lastpixel,image[i]) ) {
                     count++;
                     if (count == 62 || i == length - 1) {
@@ -222,6 +247,8 @@ public final class QOIEncoder {
      */
     public static byte[] qoiFile(Helper.Image image)
     {
+        assert image != null;
+
         byte[] output = new byte[0];
         byte[][] chan = ArrayUtils.imageToChannels(image.data());
         output = ArrayUtils.concat(output, qoiHeader(image));

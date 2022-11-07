@@ -137,7 +137,13 @@ public final class QOIDecoder {
      */
     public static int decodeQoiOpRun(byte[][] buffer, byte[] pixel, byte chunk, int position)
     {
-        return Helper.fail("Not Implemented");
+        byte countb = 0b00_11_11_11;
+        chunk &= countb;
+        int count = chunk;
+        for( int i = 0; i <= count; i++ )
+            buffer[position + i] = pixel;
+        return count;
+        //return Helper.fail("Not Implemented");
     }
 
     // ==================================================================================
@@ -152,7 +158,9 @@ public final class QOIDecoder {
      * @return (byte[][]) - Decoded "Quite Ok Image"
      * @throws AssertionError See handouts section 6.3
      */
-    public static byte[][] decodeData(byte[] data, int width, int height){
+    public static byte[][] decodeData(byte[] data, int width, int height)
+    {
+
         return Helper.fail("Not Implemented");
     }
 
