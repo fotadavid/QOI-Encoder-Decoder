@@ -191,6 +191,8 @@ public final class QOIEncoder {
         byte[][] hashtab = new byte [64][4];
         byte[] lastpixel = QOISpecification.START_PIXEL;
         byte[] output = new byte[0];
+        byte[] rez = new byte[2 * image.length];
+        int indx = 0;
         int count = 0;
         int length = image.length;
         byte index;
@@ -224,7 +226,7 @@ public final class QOIEncoder {
                         if ((-3 < dr && dr < 2) && (-3 < dg && dg < 2) && (-3 < db && db < 2)) {
                             byte[] diff = {dr, dg, db};
                             output = ArrayUtils.concat(output, qoiOpDiff(diff));
-                        } else if ((-33 < dg && dg < 32) && (-9 < (dr - dg) && (dr - dg) < 8) && (-9 < (db - dg) && (db - dg) < 8)) {
+                        } else if ((-33 < dg && dg < 32) && (-9 < (dr - dg) && (dr - dg) < 8) &&  (-9 < (db - dg) && (db - dg) < 8)) {
                             byte[] diff = {dr, dg, db};
                             output = ArrayUtils.concat(output, qoiOpLuma(diff));
                         } else output = ArrayUtils.concat(output, qoiOpRGB(image[i]));

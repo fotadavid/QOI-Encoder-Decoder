@@ -30,6 +30,15 @@ public final class QOIDecoder {
      */
     public static int[] decodeHeader(byte[] header)
     {
+        assert header != null;
+        assert header.length == QOISpecification.HEADER_SIZE;
+        byte[] magic = ArrayUtils.extract (header, 0, 4);
+        for( int i = 0; i < 4; i++ )
+            assert magic[i] == QOISpecification.QOI_MAGIC[i];
+        //assert magic == QOISpecification.QOI_MAGIC;
+        assert ( header[12] == QOISpecification.RGB) || (header[12] == QOISpecification.RGBA);
+        assert ( header[13] == QOISpecification.sRGB) || (header[13] == QOISpecification.ALL);
+
         byte[] widthb = ArrayUtils.extract( header, 4, 4);
         byte[] heightb = ArrayUtils.extract( header, 8, 4);
         int width = ArrayUtils.toInt(widthb), height = ArrayUtils.toInt(heightb);
@@ -54,6 +63,11 @@ public final class QOIDecoder {
      */
     public static int decodeQoiOpRGB(byte[][] buffer, byte[] input, byte alpha, int position, int idx)
     {
+        assert buffer != null;
+        assert input != null;
+        assert (position < buffer.length) && (position >= 0);
+        assert (idx < input.length) && (idx > 0);
+        assert input.length > (idx + 2);
         for( int i = 0; i < 3; i++ )
             buffer[position][i] = input[idx + i];
         buffer[position][3] = alpha;
@@ -72,6 +86,11 @@ public final class QOIDecoder {
      */
     public static int decodeQoiOpRGBA(byte[][] buffer, byte[] input, int position, int idx)
     {
+        assert buffer != null;
+        assert input != null;
+        assert (position < buffer.length) && (position >= 0);
+        assert (idx < input.length) && (idx > 0);
+        assert input.length > (idx + 3);
         for( int i = 0; i < 4; i++ )
             buffer[position][i] = input[idx + i];
         return 4;
@@ -87,6 +106,11 @@ public final class QOIDecoder {
      */
     public static byte[] decodeQoiOpDiff(byte[] previousPixel, byte chunk)
     {
+        assert previousPixel != null;
+        assert previousPixel.length == 4;
+        byte tag = (byte) 0b11_00_00_00;
+        tag &= chunk;
+        assert tag == QOISpecification.QOI_OP_DIFF_TAG;
         byte[] output;
         byte dr = 0b00_11_00_00, dg = 0b00_00_11_00, db = 0b00_00_00_11;
         dr &= chunk;
@@ -109,6 +133,12 @@ public final class QOIDecoder {
      */
     public static byte[] decodeQoiOpLuma(byte[] previousPixel, byte[] data)
     {
+        assert previousPixel != null;
+        assert data != null;
+        assert previousPixel.length == 4;
+        byte tag = (byte) 0b11_00_00_00;
+        tag &= data[0];
+        assert tag == QOISpecification.QOI_OP_LUMA_TAG;
         byte [] output;
         byte dg = 0b00_11_11_11;
         byte dbg = 0b00_00_11_11;
@@ -116,7 +146,7 @@ public final class QOIDecoder {
         dg &= data[0];
         dg -= 32;
         dbg &= data[1];
-        drg &= data[1]>>4;
+        drg &= (data[1]>>4);
         byte dr = (byte)(dg + (drg));
         byte db = (byte)(dg + (dbg));
         output = ArrayUtils.concat(ArrayUtils.wrap((byte)(dr + previousPixel[0] - 8)));
@@ -138,9 +168,14 @@ public final class QOIDecoder {
      */
     public static int decodeQoiOpRun(byte[][] buffer, byte[] pixel, byte chunk, int position)
     {
+        assert buffer != null;
+        assert (position < buffer.length) && (position >= 0);
+        assert pixel != null;
+        assert pixel.length == 4;
         byte countb = 0b00_11_11_11;
         chunk &= countb;
         int count = chunk;
+        assert buffer.length > position + count;
         for( int i = 0; i <= count; i++ )
             buffer[position + i] = pixel;
         return count;
@@ -161,10 +196,13 @@ public final class QOIDecoder {
      */
     public static byte[][] decodeData(byte[] data, int width, int height)
     {
+        assert data != null;
+        assert (width >= 0) && (height >=0);
+
         int idx = 0, i = 0, count;
         byte[] lastpixel = QOISpecification.START_PIXEL;
         byte[] currentpixel = new byte[4];
-        byte[][] output = new byte[height*width][width], hashtab = new byte[64][4];
+        byte[][] output = new byte[height * width][4], hashtab = new byte[64][4];
         byte tag = (byte) 0b11_00_00_00, index;
         byte[] diff = new byte[3];
         while( idx < data.length )
@@ -196,7 +234,7 @@ public final class QOIDecoder {
                     index = QOISpecification.hash(output[i]);
                     if( hashtab[index] != output[i] )
                         hashtab[index] = output[i];
-                    lastpixel =  output[i];
+                    lastpixel = output[i];
                     i++;
                     idx++;
                 }else if( tag == QOISpecification.QOI_OP_LUMA_TAG)
@@ -217,10 +255,14 @@ public final class QOIDecoder {
                     idx++;
                 }else if( tag == QOISpecification.QOI_OP_INDEX_TAG )
                 {
-                    index = (byte) (data[i] & 0b00_11_11_11);
+                    index = (byte) (data[idx] & 0b00_11_11_11);
                     output[i] = hashtab[index];
+                    lastpixel = output[i];
+                    i++;
+                    idx++;
                 }
             }
+            hashtab[QOISpecification.hash(lastpixel)] = lastpixel;
         }
         return output;
         //return Helper.fail("Not Implemented");
@@ -236,13 +278,11 @@ public final class QOIDecoder {
     {
         byte[] header = ArrayUtils.extract(content, 0, 14);
         int[] decoded = decodeHeader(header);
-        byte[] data = ArrayUtils.extract(content, 14, content.length - QOISpecification.QOI_EOF.length);
-        byte[][] output = decodeData(data, decoded[1], decoded[0]);
-        int[][] finalout = new int[output.length][4];
-        for( int i = 0; i < output.length; i++ )
-            for( int j = 0; j < output[i].length; j++ )
-                finalout[i][j] = (int)output[i][j];
-        Image image = Helper.generateImage(finalout, (byte)decoded[12], (byte)decoded[13]);
+        byte[] data = ArrayUtils.extract(content, 14, content.length - QOISpecification.QOI_EOF.length - 14);
+        System.out.println( decoded[0] + " " + decoded[1]);
+        byte[][] output = decodeData(data, decoded[0], decoded[1]);
+        int[][] finalout = ArrayUtils.channelsToImage(output, decoded[1], decoded[0]);
+        Image image = Helper.generateImage(finalout, (byte)decoded[2], (byte)decoded[3]);
         return image;
         //return Helper.fail("Not Implemented");
     }

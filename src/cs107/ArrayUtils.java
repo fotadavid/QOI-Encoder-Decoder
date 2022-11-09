@@ -173,7 +173,7 @@ public final class ArrayUtils {
      * start + length should also be smaller than the input's length
      */
     public static byte[] extract(byte[] input, int start, int length){
-        assert length >=0;
+        assert length > 0;
         assert start + length <= input.length;
         assert start >= 0 && start < input.length;
         assert input != null;
