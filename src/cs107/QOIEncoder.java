@@ -166,7 +166,7 @@ public final class QOIEncoder {
      */
     public static byte[] qoiOpRun(byte count)
     {
-        assert (1 < count && count <= 62);
+        assert (0 < count && count <= 62);
 
         byte[] outputfinal = new byte[1];
         outputfinal[0] |= QOISpecification.QOI_OP_RUN_TAG;
@@ -207,7 +207,7 @@ public final class QOIEncoder {
                         count = 0;
                     }
                 } else {
-                    if (count > 1) {
+                    if (count >= 1) {
                         output = ArrayUtils.concat(output, qoiOpRun((byte) (count)));
                         count = 0;
                     }

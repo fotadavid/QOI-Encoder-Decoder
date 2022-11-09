@@ -73,7 +73,7 @@ public final class Main {
         //Hexdump.hexdump(QOIEncoder.qoiHeader(Helper.readImage("references/beach.png")));
         //Hexdump.hexdump(QOIEncoder.qoiFile(Helper.readImage("references/qoi_op_run.png")));
         Helper.write("cube.qoi", QOIEncoder.qoiFile(Helper.readImage("references/cube.png")));
-        //Diff.diff(Helper.read("res/cube.qoi"), Helper.read("references/cube.qoi"));
+        Diff.diff(Helper.read("res/cube.qoi"), Helper.read("references/cube.qoi"));
         //Helper.writeImage("beach.png", QOIDecoder.decodeQoiFile(Helper.read("references/beach.qoi")));
         System.out.println("All the tests passes. Congratulations");
     }
