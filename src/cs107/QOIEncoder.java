@@ -190,8 +190,9 @@ public final class QOIEncoder {
 
         byte[][] hashtab = new byte [64][4];
         byte[] lastpixel = QOISpecification.START_PIXEL;
-        byte[] output = new byte[0];
+        byte[] output;
         byte[] rez = new byte[2 * image.length];
+        byte[] aux;
         int indx = 0;
         int count = 0;
         int length = image.length;
@@ -203,17 +204,24 @@ public final class QOIEncoder {
                 if( ArrayUtils.equals(lastpixel,image[i]) ) {
                     count++;
                     if (count == 62 || i == length - 1) {
-                        output = ArrayUtils.concat(output, qoiOpRun((byte) (count)));
+                        aux = qoiOpRun((byte) (count));
+                        rez[indx] = aux[0];
+                        indx++;
                         count = 0;
                     }
                 } else {
                     if (count >= 1) {
-                        output = ArrayUtils.concat(output, qoiOpRun((byte) (count)));
+                        aux = qoiOpRun((byte) (count));
+                        rez[indx] = aux[0];
+                        indx++;
                         count = 0;
                     }
                 index = QOISpecification.hash(image[i]);
-                if( ArrayUtils.equals(hashtab[index], image[i]) )
-                        output = ArrayUtils.concat(output, qoiOpIndex(index));
+                if( ArrayUtils.equals(hashtab[index], image[i]) ) {
+                    aux = qoiOpIndex(index);
+                    rez[indx] = aux[0];
+                    indx++;
+                }
                 else {
                     hashtab[index] = image[i];
                     if (image[i][3] == lastpixel[3]) {
@@ -225,16 +233,38 @@ public final class QOIEncoder {
                         //db += 2;
                         if ((-3 < dr && dr < 2) && (-3 < dg && dg < 2) && (-3 < db && db < 2)) {
                             byte[] diff = {dr, dg, db};
-                            output = ArrayUtils.concat(output, qoiOpDiff(diff));
+                            aux = qoiOpDiff(diff);
+                            rez[indx] = aux[0];
+                            indx++;
                         } else if ((-33 < dg && dg < 32) && (-9 < (dr - dg) && (dr - dg) < 8) &&  (-9 < (db - dg) && (db - dg) < 8)) {
                             byte[] diff = {dr, dg, db};
-                            output = ArrayUtils.concat(output, qoiOpLuma(diff));
-                        } else output = ArrayUtils.concat(output, qoiOpRGB(image[i]));
-                    } else output = ArrayUtils.concat(output, qoiOpRGBA(image[i]));
+                            aux = qoiOpLuma(diff);
+                            rez[indx] = aux[0];
+                            indx++;
+                            rez[indx] = aux[1];
+                            indx++;
+                        } else {
+                            aux = qoiOpRGB(image[i]);
+                            rez[indx] = aux[0];
+                            rez[indx + 1] = aux[1];
+                            rez[indx + 2] = aux[2];
+                            rez[indx + 3] = aux[3];
+                            indx += 4;
+                        }
+                    } else {
+                        aux = qoiOpRGBA(image[i]);
+                        rez[indx] = aux[0];
+                        rez[indx + 1] = aux[1];
+                        rez[indx + 2] = aux[2];
+                        rez[indx + 3] = aux[3];
+                        rez[indx + 4] = aux[4];
+                        indx += 5;
+                    }
                 }
             }
                 lastpixel = image[i];
             }
+        output = ArrayUtils.extract( rez, 0, indx );
         return output;
         //return Helper.fail("Not Implemented");
     }
